@@ -1,0 +1,140 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+int _InputWidth;
+int _InputHeight;
+int _OutlineSize;
+RWTexture2D<float4> _Texture;
+
+/*
+bool LineCast(int fromx, int fromy, int tox, int toy)
+{
+    float slope = (toy-fromy) / (tox-fromx);
+    int y = fromy;
+    for(int x = fromx; x < tox; x += fromx < tox ? 1 : -1)
+    {
+        if(_InputTexture[float2(x,y)].r > 1) return true;
+        y += slope;
+    }
+    return false;
+}
+*/
+
+[numthreads(4,4,1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 mycol = _Texture[id.xy];
+    if (id.x < 1 || id.y < 1 || id.y > _InputHeight - 2 || id.x > _InputWidth - 2)
+    {
+        _Texture[id.xy] = float4(mycol.r, mycol.g, 1, 1);
+        mycol.b = 1;
+    }
+    if (_OutlineSize > 0)
+    {
+        float totalRed = 0;
+        totalRed += _Texture[float2(id.x - 1, id.y)].r;
+        totalRed += _Texture[float2(id.x + 1, id.y)].r;
+        totalRed += _Texture[float2(id.x, id.y + 1)].r;
+        totalRed += _Texture[float2(id.x, id.y - 1)].r;
+        totalRed += _Texture[float2(id.x + 1, id.y + 1)].r;
+        totalRed += _Texture[float2(id.x - 1, id.y - 1)].r;
+        totalRed += _Texture[float2(id.x + 1, id.y - 1)].r;
+        totalRed += _Texture[float2(id.x - 1, id.y + 1)].r;
+        mycol.r = totalRed > 0;
+    }
+    if (mycol.b < 1)
+    {
+        float total = 0;
+        total += _Texture[float2(id.x - 1, id.y)].b;
+        total += _Texture[float2(id.x + 1, id.y)].b;
+        total += _Texture[float2(id.x, id.y + 1)].b;
+        total += _Texture[float2(id.x, id.y - 1)].b;
+        mycol.b = clamp(total, 0, 1) * (mycol.r < 1);
+    }
+    _Texture[id.xy] = mycol;
+    /* Failed
+    //Yes if statements in shaders are bad but this is prototype code
+    if(mycol.r < 1)
+    {
+        if(!LineCast(0,0,id.x,id.y))
+        {
+            if(!LineCast(0,_InputHeight,id.x,id.y))
+            {
+                if(!LineCast(id.x,id.y,_InputWidth,0))
+                {
+                    if(!LineCast(id.x,id.y,_InputWidth,_InputHeight))
+                    {
+                        Result[id.xy] = float4(0,0,0,1);
+                    } else
+                    {
+                        Result[id.xy] = float4(1,1,1,1);
+                    }
+                } else
+                {
+                    Result[id.xy] = float4(1,1,1,1);
+                }
+            } else
+            {
+                Result[id.xy] = float4(1,1,1,1);
+            }
+        } else
+        {
+            Result[id.xy] = float4(1,1,1,1);
+        }
+    } else
+    {
+        Result[id.xy] = float4(1,1,1,1);
+    }
+    */
+    /* even more failed
+    //Old naive attempt
+    bool resultfound = false;
+    int hits = 0;
+    for(float x = id.x; x >= 0; x -= 1)
+    {
+        if(_InputTexture[float2(x,id.y)].r > _ActivationValue)
+        {
+            hits++;
+            if(hits >= _MinActivationHits) break;
+        }
+    }
+    if(!hits >= _MinActivationHits) resultfound = true;
+    hits = 0;
+    for(float x = id.x; x >= 0; x += 1)
+    {
+        if(_InputTexture[float2(x,id.y)].r > _ActivationValue)
+        {
+            hits++;
+            if(hits >= _MinActivationHits) break;
+        }
+    }
+    if(!hits >= _MinActivationHits) resultfound = true;
+    hits = 0;
+    for(float y = id.y; y >= 0; y -= 1)
+    {
+        if(_InputTexture[float2(id.x,y)].r > _ActivationValue)
+        {
+            hits++;
+            if(hits >= _MinActivationHits) break;
+        }
+    }
+    if(!hits >= _MinActivationHits) resultfound = true;
+    hits = 0;
+    for(float y = id.y; y >= 0; y += 1)
+    {
+        if(_InputTexture[float2(id.x,y)].r > _ActivationValue)
+        {
+            hits++;
+            if(hits >= _MinActivationHits) break;
+        }
+    }
+    if(!hits >= _MinActivationHits) resultfound = true;
+    if(resultfound)
+    {
+        Result[id.xy] = float4(0,0,0,1);
+    } else
+    {
+        Result[id.xy] = float4(1,1,1,1);
+    }
+    */
+}
