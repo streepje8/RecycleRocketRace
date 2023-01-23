@@ -10,7 +10,7 @@ This project was made for Project Hybrid at the HKU.
 
 To build the game you need [Unity 2021.3.11](https://unity.com/releases/editor/whats-new/2021.3.11).
 
-If you just want to play the game, check the [releases tab](https://github.com/streepje8/Hybrid2022/releases).
+If you just want to play the game, check the [releases tab](https://github.com/streepje8/RecycleRocketRace/releases).
 
 ## Requirements
 In order to experience the game you need the following items:
