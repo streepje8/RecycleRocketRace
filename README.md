@@ -1,6 +1,6 @@
 # Recycle Rocket Race
 
-### Please note that this source repository has all possibly copyrighted material and store assets stripped. It will probebly not compile
+### Please note that this source repository has all possibly copyrighted material and store assets stripped. It will probebly not compile!
 
 Recycle Rocket Race is a fun puzzle game that lets you create a spaceship with real world objects in order to obtain the highest score.
 
